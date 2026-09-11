@@ -30,7 +30,10 @@ uploaded images go to `public/uploads/`.
 The site has a browser-based editor at **https://myerzzd.github.io/astro-test-site/admin/**.
 
 - **Site settings** — business name, phone, address, homepage headline, reviews, FAQs.
-- **Classes** — add, edit or remove classes (price, day, spaces left, description, photo).
+- **Classes** — add, edit or remove classes (price, day, spaces left, description, photo). Paste a Stripe
+  Payment Link or Calendly link into **Online booking link** and every Book button for that class goes there;
+  leave it blank to use the enquiry form.
+- **Class quiz** — the questions and answers in the homepage quiz, and which classes each answer suggests.
 - **Pages** — the text on the Home and About pages.
 - **News** — create, edit and delete posts.
 

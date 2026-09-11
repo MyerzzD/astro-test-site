@@ -1,0 +1,32 @@
+{
+  "eyebrow": "30-second quiz",
+  "title": "Which class is right for your dog?",
+  "intro": "Answer three quick questions and we'll point you at the best place to start.",
+  "questions": [
+    {
+      "question": "How old is your dog?",
+      "options": [
+        { "label": "🐣 Under 5 months", "recommends": ["puppy-foundations"], "strong": false },
+        { "label": "🙄 5–18 months", "recommends": ["adolescent-rescue"], "strong": false },
+        { "label": "🐕 Over 18 months", "recommends": ["good-citizen-bronze"], "strong": false }
+      ]
+    },
+    {
+      "question": "What's the biggest thing you'd like to work on?",
+      "options": [
+        { "label": "📚 The basics", "recommends": ["puppy-foundations", "good-citizen-bronze"], "strong": false },
+        { "label": "🦮 Pulling & recall", "recommends": ["adolescent-rescue", "good-citizen-bronze"], "strong": false },
+        { "label": "😟 Fear, barking or anxiety", "recommends": ["one-to-one"], "strong": true },
+        { "label": "🎉 Fun & exercise", "recommends": ["agility-fun", "scent-work"], "strong": false }
+      ]
+    },
+    {
+      "question": "How is your dog around other dogs?",
+      "options": [
+        { "label": "😊 Fine / friendly", "recommends": ["agility-fun"], "strong": false },
+        { "label": "🤪 Over-excited", "recommends": ["scent-work"], "strong": false },
+        { "label": "😬 Scared or barky", "recommends": ["one-to-one"], "strong": true }
+      ]
+    }
+  ]
+}

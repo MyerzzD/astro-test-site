@@ -32,6 +32,7 @@ const classes = defineCollection({
 		image: z.union([z.number(), z.string()]),
 		summary: z.string(),
 		featured: z.boolean().default(false),
+		bookingUrl: z.string().optional(),
 	}),
 });
 

@@ -1,12 +1,13 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { dogImg, levelLabel } from '../lib/img';
+import { dogImg, levelLabel, bookLink } from '../lib/img';
 
 interface Props { entry: CollectionEntry<'classes'> }
 const { entry } = Astro.props;
 const { data } = entry;
 const base = import.meta.env.BASE_URL;
 const low = data.spots <= 3;
+const book = bookLink(entry.id, data.bookingUrl, base);
 ---
 
 <article class="card class-card" data-level={data.level} data-day={data.day}>
@@ -21,7 +22,7 @@ const low = data.spots <= 3;
 		<p class="summary">{data.summary}</p>
 		<div class="foot">
 			<span class="price">£{data.price} <small>/ {data.weeks === 1 ? 'session' : `${data.weeks} weeks`}</small></span>
-			<a class="btn teal small" href={`${base}book/?class=${entry.id}`}>Book</a>
+			<a class="btn teal small" href={book}>Book</a>
 		</div>
 	</div>
 </article>

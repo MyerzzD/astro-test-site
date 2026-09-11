@@ -8,3 +8,7 @@ export const levelLabel: Record<string, string> = {
 	adult: 'Adult',
 	behaviour: '1-2-1',
 };
+
+/** Where a class's Book button should go: its online booking link if set, else the enquiry form. */
+export const bookLink = (id: string, bookingUrl: string | undefined, base: string) =>
+	bookingUrl?.trim() ? bookingUrl.trim() : `${base}book/?class=${id}`;

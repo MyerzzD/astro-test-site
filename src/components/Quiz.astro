@@ -1,48 +1,40 @@
 ---
 import { getCollection } from 'astro:content';
+import quiz from '../data/quiz.json';
+import { bookLink } from '../lib/img';
+
 const base = import.meta.env.BASE_URL;
 const classes = await getCollection('classes');
-const byId = Object.fromEntries(classes.map((c) => [c.id, { title: c.data.title, summary: c.data.summary, price: c.data.price, day: c.data.day }]));
+// id → details the result panel needs; order doubles as the tie-breaker (featured first)
+const byId = Object.fromEntries(
+	classes
+		.sort((a, b) => Number(b.data.featured) - Number(a.data.featured))
+		.map((c) => [c.id, { title: c.data.title, summary: c.data.summary, price: c.data.price, day: c.data.day, book: bookLink(c.id, c.data.bookingUrl, base) }]),
+);
+const questions = quiz.questions.filter((q) => q.options.length);
 ---
 
 <section class="quiz section" id="quiz">
 	<div class="wrap">
 		<div class="panel reveal">
 			<div class="intro">
-				<span class="eyebrow coral">30-second quiz</span>
-				<h2>Which class is right for your dog?</h2>
-				<p>Answer three quick questions and we'll point you at the best place to start.</p>
+				<span class="eyebrow coral">{quiz.eyebrow}</span>
+				<h2>{quiz.title}</h2>
+				<p>{quiz.intro}</p>
 			</div>
 			<div class="steps" data-classes={JSON.stringify(byId)}>
 				<div class="progress"><span></span></div>
 
-				<fieldset class="step on" data-step="0">
-					<legend>How old is your dog?</legend>
-					<div class="opts">
-						<button data-v="puppy">🐣 Under 5 months</button>
-						<button data-v="teen">🙄 5–18 months</button>
-						<button data-v="adult">🐕 Over 18 months</button>
-					</div>
-				</fieldset>
-
-				<fieldset class="step" data-step="1">
-					<legend>What's the biggest thing you'd like to work on?</legend>
-					<div class="opts">
-						<button data-v="basics">📚 The basics</button>
-						<button data-v="manners">🦮 Pulling & recall</button>
-						<button data-v="worry">😟 Fear, barking or anxiety</button>
-						<button data-v="fun">🎉 Fun & exercise</button>
-					</div>
-				</fieldset>
-
-				<fieldset class="step" data-step="2">
-					<legend>How is your dog around other dogs?</legend>
-					<div class="opts">
-						<button data-v="fine">😊 Fine / friendly</button>
-						<button data-v="excited">🤪 Over-excited</button>
-						<button data-v="scared">😬 Scared or barky</button>
-					</div>
-				</fieldset>
+				{questions.map((q, i) => (
+					<fieldset class:list={['step', { on: i === 0 }]} data-step={i}>
+						<legend>{q.question}</legend>
+						<div class="opts">
+							{q.options.map((o) => (
+								<button data-recommends={JSON.stringify(o.recommends)} data-strong={o.strong ? '1' : ''}>{o.label}</button>
+							))}
+						</div>
+					</fieldset>
+				))}
 
 				<div class="result" hidden>
 					<span class="eyebrow teal">Our suggestion</span>
@@ -59,48 +51,48 @@ const byId = Object.fromEntries(classes.map((c) => [c.id, { title: c.data.title,
 	</div>
 </section>
 
-<script define:vars={{ base }}>
-	const root = document.querySelector('.quiz .steps');
+<script>
+	const root = document.querySelector<HTMLElement>('.quiz .steps');
 	if (root) {
-		const classes = JSON.parse(root.dataset.classes);
-		const steps = [...root.querySelectorAll('.step')];
-		const result = root.querySelector('.result');
-		const bar = root.querySelector('.progress span');
-		const answers = [];
+		const classes = JSON.parse(root.dataset.classes!) as Record<string, { title: string; summary: string; price: number; day: string; book: string }>;
+		const ids = Object.keys(classes);
+		const steps = [...root.querySelectorAll<HTMLElement>('.step')];
+		const result = root.querySelector<HTMLElement>('.result')!;
+		const bar = root.querySelector<HTMLElement>('.progress span')!;
+		const STRONG = 6, NORMAL = 2;
+		let scores: Record<string, number> = {};
 
-		const pick = () => {
-			const [age, goal, social] = answers;
-			if (social === 'scared' || goal === 'worry') return 'one-to-one';
-			if (age === 'puppy') return 'puppy-foundations';
-			if (age === 'teen') return 'adolescent-rescue';
-			if (goal === 'fun') return social === 'excited' ? 'scent-work' : 'agility-fun';
-			return 'good-citizen-bronze';
-		};
-
-		const show = (i) => {
+		const show = (i: number) => {
 			steps.forEach((s, n) => s.classList.toggle('on', n === i));
 			bar.style.width = `${(i / steps.length) * 100}%`;
 		};
 
+		const winner = () => {
+			// highest score wins; ties go to whichever class is listed first (featured classes come first)
+			let best: string | null = null;
+			for (const id of ids) if ((scores[id] ?? 0) > (best ? scores[best] : 0)) best = id;
+			return best ?? ids[0];
+		};
+
 		steps.forEach((step, i) =>
-			step.querySelectorAll('button').forEach((b) =>
+			step.querySelectorAll<HTMLButtonElement>('button').forEach((b) =>
 				b.addEventListener('click', () => {
-					answers[i] = b.dataset.v;
+					const pts = b.dataset.strong ? STRONG : NORMAL;
+					for (const id of JSON.parse(b.dataset.recommends || '[]') as string[]) if (id in classes) scores[id] = (scores[id] ?? 0) + pts;
 					if (i + 1 < steps.length) return show(i + 1);
-					const id = pick();
-					const c = classes[id];
+					const c = classes[winner()];
 					steps.forEach((s) => s.classList.remove('on'));
 					bar.style.width = '100%';
-					result.querySelector('.r-title').textContent = c.title;
-					result.querySelector('.r-summary').textContent = c.summary;
-					result.querySelector('.r-meta').textContent = `${c.day} · £${c.price}`;
-					result.querySelector('a').href = `${base}book/?class=${id}`;
+					result.querySelector('.r-title')!.textContent = c.title;
+					result.querySelector('.r-summary')!.textContent = c.summary;
+					result.querySelector('.r-meta')!.textContent = `${c.day} · £${c.price}`;
+					result.querySelector('a')!.href = c.book;
 					result.hidden = false;
 				}),
 			),
 		);
-		result.querySelector('.restart').addEventListener('click', () => {
-			answers.length = 0;
+		result.querySelector('.restart')!.addEventListener('click', () => {
+			scores = {};
 			result.hidden = true;
 			show(0);
 		});

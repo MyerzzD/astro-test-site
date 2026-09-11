@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import site from '../data/site.json';
 
-const classes = (await getCollection('classes')).map((c) => ({ id: c.id, title: c.data.title, price: c.data.price, day: c.data.day, time: c.data.time, weeks: c.data.weeks }));
+const classes = (await getCollection('classes')).map((c) => ({ id: c.id, title: c.data.title, price: c.data.price, day: c.data.day, time: c.data.time, weeks: c.data.weeks, online: c.data.bookingUrl?.trim() || '' }));
 ---
 
 <Layout title="Book a class · Fenland Paws">
@@ -88,7 +88,11 @@ const classes = (await getCollection('classes')).map((c) => ({ id: c.id, title: 
 					<p class="s-when"></p>
 					<p class="s-dog"></p>
 					<div class="total"><span>Total</span><span class="s-price"></span></div>
-					<p class="small">Pay on the first session — cash, card or bank transfer.</p>
+					<div class="online" hidden>
+						<a class="btn teal" href="#">Book & pay online →</a>
+						<p class="small">🔒 Instant confirmation. Or send the enquiry form below and we'll be in touch.</p>
+					</div>
+					<p class="small offline">Pay on the first session — cash, card or bank transfer.</p>
 				</div>
 				<div class="help">
 					<p>Not sure which class? <a href="/#quiz" id="quiz-link">Take the quiz</a> or call <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a>.</p>
@@ -117,6 +121,10 @@ const classes = (await getCollection('classes')).map((c) => ({ id: c.id, title: 
 		const dog = form.dog.value.trim();
 		$('.s-dog').textContent = dog ? `For ${dog}` : '';
 		$('.s-price').textContent = `£${c.price}`;
+		const online = $('#summary .online');
+		online.hidden = !c.online;
+		$('#summary .offline').hidden = !!c.online;
+		if (c.online) online.querySelector('a').href = c.online;
 	};
 	form.addEventListener('input', update);
 
@@ -185,6 +193,8 @@ const classes = (await getCollection('classes')).map((c) => ({ id: c.id, title: 
 	.s-title { font-family: var(--font-display); font-size: 1.4rem; color: var(--navy); }
 	.total { display: flex; justify-content: space-between; font-family: var(--font-display); font-size: 1.5rem; color: var(--navy); border-top: 2px dashed #e0ddf3; padding-top: 0.8rem; margin-top: 0.8rem; }
 	.small { font-size: 0.85rem; color: var(--muted); }
+	.online { margin-top: 1rem; }
+	.online .btn { width: 100%; justify-content: center; margin-bottom: 0.6rem; }
 	.help { border-top: 1px solid #eee; margin-top: 1rem; padding-top: 1rem; font-size: 0.95rem; }
 	.done { padding: 2.5rem; text-align: center; margin-top: 1rem; }
 	.done:hover { transform: none; }

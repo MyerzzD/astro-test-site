@@ -2,7 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import ClassCard from '../../components/ClassCard.astro';
-import { dogImg, levelLabel } from '../../lib/img';
+import { dogImg, levelLabel, bookLink } from '../../lib/img';
 
 export async function getStaticPaths() {
 	const classes = await getCollection('classes');
@@ -13,6 +13,8 @@ const base = import.meta.env.BASE_URL;
 const { entry } = Astro.props;
 const { data } = entry;
 const { Content } = await render(entry);
+const online = Boolean(data.bookingUrl?.trim());
+const book = bookLink(entry.id, data.bookingUrl, base);
 const others = (await getCollection('classes')).filter((c) => c.id !== entry.id).slice(0, 3);
 ---
 
@@ -35,7 +37,8 @@ const others = (await getCollection('classes')).filter((c) => c.id !== entry.id)
 						<dt>Where</dt><dd>The barn, Leverington Road, Wisbech</dd>
 						<dt>Spaces</dt><dd>{data.spots} left</dd>
 					</dl>
-					<a class="btn" href={`${base}book/?class=${entry.id}`}>Book this class</a>
+					<a class="btn" href={book}>{online ? 'Book & pay online' : 'Book this class'}</a>
+					{online && <p class="secure">🔒 Secure online booking · you'll get an instant confirmation</p>}
 				</div>
 			</aside>
 		</div>
@@ -63,6 +66,7 @@ const others = (await getCollection('classes')).filter((c) => c.id !== entry.id)
 	dt { font-weight: 800; color: var(--navy); }
 	dd { margin: 0; }
 	.book .btn { width: 100%; justify-content: center; }
+	.secure { font-size: 0.85rem; color: var(--muted); text-align: center; margin: 0.7rem 0 0; }
 	.others { background: var(--white); }
 	.row { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.6rem; }
 	@media (max-width: 820px) { .grid { grid-template-columns: 1fr; } .book { position: static; } }
