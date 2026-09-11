@@ -53,13 +53,11 @@ Saving in the CMS commits directly to this repo; the site rebuilds and goes live
 
 ### Signing in
 
-The CMS talks to GitHub, so editors need access to this repo (add them as a collaborator).
+1. Open the admin link above and click **Sign In Using Access Token**.
+2. Paste the access token you were given and click **Sign In**. You only need to do this once per browser.
 
-- **Personal access token** (works now, no extra setup): on the login screen choose
-  *Sign in with a personal access token*. Create one at GitHub → Settings → Developer settings →
-  Personal access tokens (fine-grained), scoped to this repo with **Contents: read & write**.
-- **Sign in with GitHub** (nicer for clients): deploy
-  [sveltia-cms-auth](https://github.com/sveltia/sveltia-cms-auth) as a Cloudflare Worker, register a
-  GitHub OAuth app pointing at it, and set `base_url` in `public/admin/config.yml`.
+The token is like a password — don't share it or post it anywhere. If it's lost or leaked, the site
+owner can revoke it at GitHub → Settings → Developer settings → Fine-grained tokens and issue a new one
+(scope: this repository only, Contents: read & write).
 
 Content lives in `src/content/`; uploaded images go to `public/uploads/`.
