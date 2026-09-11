@@ -1,50 +1,186 @@
 ---
+import site from '../data/site.json';
+import '../styles/global.css';
+
 interface Props {
 	title: string;
+	description?: string;
 }
 
-const { title } = Astro.props;
+const { title, description = site.tagline } = Astro.props;
 const base = import.meta.env.BASE_URL;
+const path = Astro.url.pathname;
+const nav = [
+	{ href: `${base}classes/`, label: 'Classes' },
+	{ href: `${base}about/`, label: 'About' },
+	{ href: `${base}news/`, label: 'News' },
+	{ href: `${base}book/`, label: 'Book' },
+];
+const isActive = (href: string) => path.startsWith(href);
 ---
 
-<html lang="en">
+<html lang="en-GB">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
 		<title>{title}</title>
+		<link rel="icon" href={`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>`} />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet" />
 	</head>
 	<body>
-		<nav>
-			<a href={base}>Home</a>
-			<a href={`${base}about`}>About</a>
-			<a href={`${base}news`}>News</a>
-		</nav>
+		<header class="site-header">
+			<div class="wrap bar">
+				<a class="brand" href={base}>
+					<span class="paw">🐾</span> {site.name}
+				</a>
+				<button class="menu-btn" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+					<span></span><span></span><span></span>
+				</button>
+				<nav id="site-nav" class="nav">
+					{nav.map((n) => (
+						<a href={n.href} class:list={{ active: isActive(n.href) }}>{n.label}</a>
+					))}
+					<a href={`${base}book/`} class="btn yellow small">Book a class</a>
+				</nav>
+			</div>
+		</header>
+
 		<main>
 			<slot />
 		</main>
-		<footer>Built with Astro · deployed via GitHub Pages</footer>
+
+		<footer class="site-footer">
+			<div class="wrap grid">
+				<div>
+					<div class="brand light"><span class="paw">🐾</span> {site.name}</div>
+					<p>{site.tagline}</p>
+				</div>
+				<div>
+					<h4>Find us</h4>
+					<p>{site.address}</p>
+					<p><a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a><br /><a href={`mailto:${site.email}`}>{site.email}</a></p>
+				</div>
+				<div>
+					<h4>Explore</h4>
+					{nav.map((n) => <a class="foot-link" href={n.href}>{n.label}</a>)}
+				</div>
+			</div>
+			<div class="wrap fine">
+				<span>© {new Date().getFullYear()} {site.name}. Force-free, always.</span>
+				<span>Demo site · <a href={`${base}admin/`}>Edit content</a></span>
+			</div>
+		</footer>
+
+		<script>
+			// Mobile menu
+			const btn = document.querySelector<HTMLButtonElement>('.menu-btn');
+			const nav = document.getElementById('site-nav');
+			btn?.addEventListener('click', () => {
+				const open = btn.getAttribute('aria-expanded') === 'true';
+				btn.setAttribute('aria-expanded', String(!open));
+				nav?.classList.toggle('open', !open);
+			});
+
+			// Scroll reveal
+			const io = new IntersectionObserver(
+				(entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('in')),
+				{ threshold: 0.12 },
+			);
+			document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+			// Header shadow on scroll
+			const header = document.querySelector('.site-header');
+			addEventListener('scroll', () => header?.classList.toggle('scrolled', scrollY > 10), { passive: true });
+		</script>
 	</body>
 </html>
 
-<style is:global>
-	body {
-		font-family: system-ui, sans-serif;
-		max-width: 40rem;
-		margin: 3rem auto;
-		padding: 0 1rem;
-		line-height: 1.6;
-		color: #222;
+<style>
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		background: rgba(255, 249, 236, 0.9);
+		backdrop-filter: blur(10px);
+		transition: box-shadow 0.2s;
 	}
-	nav {
+	.site-header.scrolled { box-shadow: 0 4px 20px rgba(30, 27, 75, 0.08); }
+	.bar { display: flex; align-items: center; justify-content: space-between; height: 76px; gap: 1rem; }
+	.brand {
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 1.5rem;
+		color: var(--navy);
+		text-decoration: none;
 		display: flex;
-		gap: 1rem;
-		margin-bottom: 2rem;
+		align-items: center;
+		gap: 0.4rem;
 	}
-	footer {
-		margin-top: 3rem;
-		font-size: 0.85rem;
-		color: #777;
+	.brand.light { color: var(--white); }
+	.paw { display: inline-block; transition: transform 0.3s; }
+	.brand:hover .paw { transform: rotate(-20deg) scale(1.2); }
+	.nav { display: flex; align-items: center; gap: 1.6rem; }
+	.nav a:not(.btn) {
+		font-family: var(--font-display);
+		font-weight: 600;
+		color: var(--navy);
+		text-decoration: none;
+		position: relative;
+		padding-block: 0.3rem;
 	}
+	.nav a:not(.btn)::after {
+		content: '';
+		position: absolute;
+		left: 0; right: 0; bottom: 0;
+		height: 3px;
+		border-radius: 2px;
+		background: var(--coral);
+		transform: scaleX(0);
+		transition: transform 0.2s;
+	}
+	.nav a:not(.btn):hover::after, .nav a.active::after { transform: scaleX(1); }
+	.btn.small { padding: 0.6rem 1.2rem; font-size: 0.95rem; }
+	.menu-btn {
+		display: none;
+		flex-direction: column;
+		gap: 5px;
+		background: none;
+		border: 0;
+		padding: 0.5rem;
+		cursor: pointer;
+	}
+	.menu-btn span { width: 26px; height: 3px; background: var(--navy); border-radius: 2px; transition: 0.2s; }
+	.menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+	.menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+	.menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+	@media (max-width: 760px) {
+		.menu-btn { display: flex; }
+		.nav {
+			display: none;
+			position: absolute;
+			top: 76px; left: 0; right: 0;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0;
+			background: var(--white);
+			padding: 1rem 1.25rem 1.5rem;
+			box-shadow: 0 20px 30px rgba(30, 27, 75, 0.12);
+		}
+		.nav.open { display: flex; }
+		.nav a:not(.btn) { padding: 0.8rem 0; border-bottom: 1px solid #eee; }
+		.nav .btn { margin-top: 1rem; justify-content: center; }
+	}
+
+	.site-footer { background: var(--navy); color: #cfcbe8; margin-top: 4rem; }
+	.site-footer .grid { display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 2rem; padding-block: 3rem; }
+	.site-footer h4 { color: var(--yellow); margin-bottom: 0.6rem; }
+	.site-footer a { color: var(--white); }
+	.foot-link { display: block; text-decoration: none; margin-bottom: 0.4rem; }
+	.foot-link:hover { color: var(--yellow); }
+	.fine { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-block: 1.2rem; border-top: 1px solid rgba(255,255,255,0.12); font-size: 0.9rem; }
+	@media (max-width: 760px) { .site-footer .grid { grid-template-columns: 1fr; } }
 </style>

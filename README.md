@@ -1,52 +1,37 @@
-# Astro Starter Kit: Minimal
+# Fenland Paws — demo dog-training website
 
-```sh
-npm create astro@latest -- --template minimal
+A demo site for a (fictional) dog trainer in Wisbech, built with [Astro](https://astro.build) and deployed to
+GitHub Pages. Content is edited through Sveltia CMS at `/admin/`.
+
+**Live:** https://myerzzd.github.io/astro-test-site/
+
+## Pages
+
+- **Home** — hero, stats, filterable class finder, "which class?" quiz, review carousel, FAQs
+- **Classes** — all classes with age/day filters; each has its own page
+- **About**, **News**, **Book** (demo booking form — nothing is sent)
+
+## Developing
+
+```bash
+npm install
+npm run dev      # http://localhost:4321/astro-test-site/
+npm run build    # output in dist/
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Push to `main` and GitHub Actions rebuilds and deploys the site (about a minute).
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Content lives in `src/content/` (classes, news posts, page text) and `src/data/site.json`
+(business details, reviews, FAQs). Images referenced by a number are stock photos from placedog.net;
+uploaded images go to `public/uploads/`.
 
 ## Editing content (Sveltia CMS)
 
 The site has a browser-based editor at **https://myerzzd.github.io/astro-test-site/admin/**.
 
-- **Pages** — edit the text of the Home and About pages.
+- **Site settings** — business name, phone, address, homepage headline, reviews, FAQs.
+- **Classes** — add, edit or remove classes (price, day, spaces left, description, photo).
+- **Pages** — the text on the Home and About pages.
 - **News** — create, edit and delete posts.
 
 Saving in the CMS commits directly to this repo; the site rebuilds and goes live in about a minute.
@@ -59,5 +44,3 @@ Saving in the CMS commits directly to this repo; the site rebuilds and goes live
 The token is like a password — don't share it or post it anywhere. If it's lost or leaked, the site
 owner can revoke it at GitHub → Settings → Developer settings → Fine-grained tokens and issue a new one
 (scope: this repository only, Contents: read & write).
-
-Content lives in `src/content/`; uploaded images go to `public/uploads/`.

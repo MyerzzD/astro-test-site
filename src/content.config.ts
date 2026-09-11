@@ -19,4 +19,20 @@ const posts = defineCollection({
 	}),
 });
 
-export const collections = { pages, posts };
+const classes = defineCollection({
+	loader: glob({ pattern: '**/*.md', base: './src/content/classes' }),
+	schema: z.object({
+		title: z.string(),
+		level: z.enum(['puppy', 'adolescent', 'adult', 'behaviour']),
+		day: z.string(),
+		time: z.string(),
+		price: z.number(),
+		weeks: z.number(),
+		spots: z.number(),
+		image: z.union([z.number(), z.string()]),
+		summary: z.string(),
+		featured: z.boolean().default(false),
+	}),
+});
+
+export const collections = { pages, posts, classes };

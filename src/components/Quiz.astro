@@ -1,0 +1,139 @@
+---
+import { getCollection } from 'astro:content';
+const base = import.meta.env.BASE_URL;
+const classes = await getCollection('classes');
+const byId = Object.fromEntries(classes.map((c) => [c.id, { title: c.data.title, summary: c.data.summary, price: c.data.price, day: c.data.day }]));
+---
+
+<section class="quiz section" id="quiz">
+	<div class="wrap">
+		<div class="panel reveal">
+			<div class="intro">
+				<span class="eyebrow coral">30-second quiz</span>
+				<h2>Which class is right for your dog?</h2>
+				<p>Answer three quick questions and we'll point you at the best place to start.</p>
+			</div>
+			<div class="steps" data-classes={JSON.stringify(byId)}>
+				<div class="progress"><span></span></div>
+
+				<fieldset class="step on" data-step="0">
+					<legend>How old is your dog?</legend>
+					<div class="opts">
+						<button data-v="puppy">🐣 Under 5 months</button>
+						<button data-v="teen">🙄 5–18 months</button>
+						<button data-v="adult">🐕 Over 18 months</button>
+					</div>
+				</fieldset>
+
+				<fieldset class="step" data-step="1">
+					<legend>What's the biggest thing you'd like to work on?</legend>
+					<div class="opts">
+						<button data-v="basics">📚 The basics</button>
+						<button data-v="manners">🦮 Pulling & recall</button>
+						<button data-v="worry">😟 Fear, barking or anxiety</button>
+						<button data-v="fun">🎉 Fun & exercise</button>
+					</div>
+				</fieldset>
+
+				<fieldset class="step" data-step="2">
+					<legend>How is your dog around other dogs?</legend>
+					<div class="opts">
+						<button data-v="fine">😊 Fine / friendly</button>
+						<button data-v="excited">🤪 Over-excited</button>
+						<button data-v="scared">😬 Scared or barky</button>
+					</div>
+				</fieldset>
+
+				<div class="result" hidden>
+					<span class="eyebrow teal">Our suggestion</span>
+					<h3 class="r-title"></h3>
+					<p class="r-summary"></p>
+					<p class="r-meta"></p>
+					<div class="r-actions">
+						<a class="btn" href="#">Book this class</a>
+						<button class="btn ghost restart">Start again</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script define:vars={{ base }}>
+	const root = document.querySelector('.quiz .steps');
+	if (root) {
+		const classes = JSON.parse(root.dataset.classes);
+		const steps = [...root.querySelectorAll('.step')];
+		const result = root.querySelector('.result');
+		const bar = root.querySelector('.progress span');
+		const answers = [];
+
+		const pick = () => {
+			const [age, goal, social] = answers;
+			if (social === 'scared' || goal === 'worry') return 'one-to-one';
+			if (age === 'puppy') return 'puppy-foundations';
+			if (age === 'teen') return 'adolescent-rescue';
+			if (goal === 'fun') return social === 'excited' ? 'scent-work' : 'agility-fun';
+			return 'good-citizen-bronze';
+		};
+
+		const show = (i) => {
+			steps.forEach((s, n) => s.classList.toggle('on', n === i));
+			bar.style.width = `${(i / steps.length) * 100}%`;
+		};
+
+		steps.forEach((step, i) =>
+			step.querySelectorAll('button').forEach((b) =>
+				b.addEventListener('click', () => {
+					answers[i] = b.dataset.v;
+					if (i + 1 < steps.length) return show(i + 1);
+					const id = pick();
+					const c = classes[id];
+					steps.forEach((s) => s.classList.remove('on'));
+					bar.style.width = '100%';
+					result.querySelector('.r-title').textContent = c.title;
+					result.querySelector('.r-summary').textContent = c.summary;
+					result.querySelector('.r-meta').textContent = `${c.day} · £${c.price}`;
+					result.querySelector('a').href = `${base}book/?class=${id}`;
+					result.hidden = false;
+				}),
+			),
+		);
+		result.querySelector('.restart').addEventListener('click', () => {
+			answers.length = 0;
+			result.hidden = true;
+			show(0);
+		});
+	}
+</script>
+
+<style>
+	.quiz { position: relative; }
+	.panel {
+		background: var(--navy); color: #e6e3ff; border-radius: 34px; padding: clamp(1.5rem, 5vw, 3.5rem);
+		display: grid; grid-template-columns: 1fr 1.3fr; gap: 3rem; align-items: start;
+		background-image: radial-gradient(circle at 90% 10%, rgba(108, 92, 231, 0.6), transparent 40%), radial-gradient(circle at 10% 90%, rgba(0, 184, 169, 0.4), transparent 40%);
+	}
+	.panel h2 { color: var(--white); }
+	.panel p { color: #cfcbe8; }
+	.steps { background: rgba(255,255,255,0.06); border-radius: 24px; padding: 1.5rem; min-height: 260px; position: relative; }
+	.progress { height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; margin-bottom: 1.4rem; }
+	.progress span { display: block; height: 100%; width: 0; background: var(--yellow); transition: width 0.4s ease; }
+	.step { display: none; border: 0; padding: 0; margin: 0; }
+	.step.on { display: block; animation: pop 0.3s ease; }
+	legend { font-family: var(--font-display); font-size: 1.35rem; color: var(--white); margin-bottom: 1rem; padding: 0; }
+	.opts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
+	.opts button {
+		font: inherit; font-weight: 700; text-align: left; padding: 0.9rem 1rem; border-radius: 16px;
+		border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: var(--white); cursor: pointer; transition: 0.15s;
+	}
+	.opts button:hover { background: var(--yellow); color: var(--navy); border-color: var(--yellow); transform: translateY(-2px); }
+	.result { animation: pop 0.3s ease; }
+	.result h3 { color: var(--white); font-size: 1.8rem; }
+	.r-meta { color: var(--yellow) !important; font-weight: 700; }
+	.r-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1rem; }
+	.result .ghost { color: var(--white); border-color: rgba(255,255,255,0.5); }
+	.result .ghost:hover { background: var(--white); color: var(--navy); }
+	@keyframes pop { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: none; } }
+	@media (max-width: 820px) { .panel { grid-template-columns: 1fr; } .opts { grid-template-columns: 1fr; } }
+</style>

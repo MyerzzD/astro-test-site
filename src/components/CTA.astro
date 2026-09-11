@@ -1,0 +1,31 @@
+---
+import site from '../data/site.json';
+const base = import.meta.env.BASE_URL;
+---
+
+<section class="section" id="contact">
+	<div class="wrap">
+		<div class="cta reveal">
+			<div>
+				<h2>Ready to get started?</h2>
+				<p>Book online in two minutes, or give us a ring — we're always happy to chat about your dog.</p>
+			</div>
+			<div class="actions">
+				<a class="btn yellow" href={`${base}book/`}>Book a class</a>
+				<a class="btn ghost light" href={`tel:${site.phone.replace(/\s/g, '')}`}>📞 {site.phone}</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.cta {
+		background: linear-gradient(120deg, var(--coral), var(--purple)); color: var(--white); border-radius: 34px;
+		padding: clamp(1.8rem, 5vw, 3.5rem); display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap;
+	}
+	.cta h2 { color: var(--white); }
+	.cta p { margin: 0; max-width: 460px; opacity: 0.95; }
+	.actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+	.ghost.light { color: var(--white); border-color: var(--white); }
+	.ghost.light:hover { background: var(--white); color: var(--purple); }
+</style>

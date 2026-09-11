@@ -1,0 +1,193 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import site from '../data/site.json';
+
+const classes = (await getCollection('classes')).map((c) => ({ id: c.id, title: c.data.title, price: c.data.price, day: c.data.day, time: c.data.time, weeks: c.data.weeks }));
+---
+
+<Layout title="Book a class · Fenland Paws">
+	<section class="section">
+		<div class="wrap grid">
+			<div>
+				<span class="eyebrow coral">Booking</span>
+				<h1>Book your place</h1>
+				<p class="lead">Pick a class, tell us a bit about your dog, and we'll confirm your space by email within 24 hours. No payment is taken online.</p>
+
+				<form id="booking" class="form" novalidate>
+					<div class="step-tabs" aria-hidden="true">
+						<span class="on">1 Class</span><span>2 Your dog</span><span>3 You</span>
+					</div>
+
+					<fieldset>
+						<legend>1. Which class?</legend>
+						<div class="class-picker">
+							{classes.map((c) => (
+								<label class="pick">
+									<input type="radio" name="class" value={c.id} required />
+									<span class="box">
+										<strong>{c.title}</strong>
+										<span>{c.day} · {c.time}</span>
+										<em>£{c.price}</em>
+									</span>
+								</label>
+							))}
+						</div>
+					</fieldset>
+
+					<fieldset>
+						<legend>2. About your dog</legend>
+						<div class="row">
+							<label>Dog's name <input name="dog" required placeholder="e.g. Biscuit" /></label>
+							<label>Breed <input name="breed" placeholder="e.g. Labrador" /></label>
+						</div>
+						<div class="row">
+							<label>Age
+								<select name="age" required>
+									<option value="">Choose…</option>
+									<option>8–20 weeks</option><option>5–12 months</option><option>1–2 years</option><option>2–7 years</option><option>8+ years</option>
+								</select>
+							</label>
+							<label>How are they with other dogs?
+								<select name="social">
+									<option>Friendly</option><option>Over-excited</option><option>Nervous</option><option>Reactive / barky</option>
+								</select>
+							</label>
+						</div>
+						<label>Anything we should know? <textarea name="notes" rows="3" placeholder="Health issues, worries, what you'd love to work on…"></textarea></label>
+					</fieldset>
+
+					<fieldset>
+						<legend>3. About you</legend>
+						<div class="row">
+							<label>Your name <input name="name" required autocomplete="name" /></label>
+							<label>Email <input name="email" type="email" required autocomplete="email" /></label>
+						</div>
+						<label>Phone <input name="phone" type="tel" autocomplete="tel" /></label>
+						<label class="check"><input type="checkbox" name="consent" required /> I'm happy for Fenland Paws to contact me about this booking.</label>
+					</fieldset>
+
+					<p class="err" id="form-err" hidden>Please fill in the highlighted fields.</p>
+					<button class="btn" type="submit">Request my place 🐾</button>
+				</form>
+
+				<div class="done card" id="done" hidden>
+					<span class="big">🎉</span>
+					<h2>You're on the list!</h2>
+					<p id="done-text"></p>
+					<p class="small">This is a demo site, so no email has actually been sent — but in the real thing you'd get a confirmation within 24 hours.</p>
+					<a class="btn ghost" href="#" id="again">Make another booking</a>
+				</div>
+			</div>
+
+			<aside class="summary card" id="summary">
+				<h3>Your booking</h3>
+				<p class="none">Choose a class to see the details.</p>
+				<div class="sel" hidden>
+					<strong class="s-title"></strong>
+					<p class="s-when"></p>
+					<p class="s-dog"></p>
+					<div class="total"><span>Total</span><span class="s-price"></span></div>
+					<p class="small">Pay on the first session — cash, card or bank transfer.</p>
+				</div>
+				<div class="help">
+					<p>Not sure which class? <a href="/#quiz" id="quiz-link">Take the quiz</a> or call <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a>.</p>
+				</div>
+			</aside>
+		</div>
+	</section>
+</Layout>
+
+<script define:vars={{ classes }}>
+	const form = document.getElementById('booking');
+	const byId = Object.fromEntries(classes.map((c) => [c.id, c]));
+	const $ = (s) => document.querySelector(s);
+	const base = document.querySelector('a.brand')?.getAttribute('href') ?? '/';
+	$('#quiz-link').href = `${base}#quiz`;
+
+	const update = () => {
+		const id = form.class.value;
+		const sel = $('#summary .sel');
+		const none = $('#summary .none');
+		if (!id) { sel.hidden = true; none.hidden = false; return; }
+		const c = byId[id];
+		sel.hidden = false; none.hidden = true;
+		$('.s-title').textContent = c.title;
+		$('.s-when').textContent = `${c.day} · ${c.time} · ${c.weeks === 1 ? '1 session' : `${c.weeks} weeks`}`;
+		const dog = form.dog.value.trim();
+		$('.s-dog').textContent = dog ? `For ${dog}` : '';
+		$('.s-price').textContent = `£${c.price}`;
+	};
+	form.addEventListener('input', update);
+
+	// progress tabs follow scroll position within the form
+	const tabs = [...document.querySelectorAll('.step-tabs span')];
+	const sets = [...form.querySelectorAll('fieldset')];
+	const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { const i = sets.indexOf(e.target); tabs.forEach((t, k) => t.classList.toggle('on', k === i)); } }), { rootMargin: '-40% 0px -50% 0px' });
+	sets.forEach((s) => io.observe(s));
+
+	// preselect from ?class=
+	const pre = new URLSearchParams(location.search).get('class');
+	if (pre && byId[pre]) { form.class.value = pre; update(); }
+
+	form.addEventListener('submit', (e) => {
+		e.preventDefault();
+		form.querySelectorAll('.bad').forEach((el) => el.classList.remove('bad'));
+		const bad = [...form.querySelectorAll('input, select, textarea')].filter((el) => !el.checkValidity());
+		const err = $('#form-err');
+		if (bad.length) {
+			bad.forEach((el) => (el.type === 'radio' ? $('.class-picker') : el.closest('label') ?? el).classList.add('bad'));
+			err.hidden = false;
+			(bad[0].type === 'radio' ? $('.class-picker') : bad[0]).scrollIntoView({ behavior: 'smooth', block: 'center' });
+			return;
+		}
+		err.hidden = true;
+		const c = byId[form.class.value];
+		$('#done-text').textContent = `We've pencilled ${form.dog.value.trim()} in for ${c.title} on ${c.day}. Watch your inbox, ${form.name.value.trim().split(' ')[0]}!`;
+		form.hidden = true;
+		$('#done').hidden = false;
+		$('#done').scrollIntoView({ behavior: 'smooth', block: 'center' });
+	});
+	$('#again').addEventListener('click', (e) => { e.preventDefault(); form.reset(); form.hidden = false; $('#done').hidden = true; update(); scrollTo({ top: 0, behavior: 'smooth' }); });
+</script>
+
+<style>
+	.grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem; align-items: start; }
+	.lead { font-size: 1.15rem; color: var(--muted); }
+	.step-tabs { display: flex; gap: 0.5rem; margin: 1.5rem 0; }
+	.step-tabs span { flex: 1; text-align: center; font-family: var(--font-display); font-weight: 600; padding: 0.5rem; border-radius: 999px; background: #e9e6f7; color: var(--muted); transition: 0.2s; }
+	.step-tabs span.on { background: var(--navy); color: var(--white); }
+	fieldset { border: 0; padding: 0; margin: 0 0 2rem; }
+	legend { font-family: var(--font-display); font-size: 1.4rem; color: var(--navy); margin-bottom: 1rem; padding: 0; }
+	.row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+	label { display: flex; flex-direction: column; gap: 0.3rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+	input:not([type=radio]):not([type=checkbox]), select, textarea {
+		font: inherit; font-weight: 400; padding: 0.75rem 0.9rem; border-radius: 14px; border: 2px solid #d9d6f0; background: var(--white); transition: 0.15s;
+	}
+	input:focus, select:focus, textarea:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15); }
+	.bad input, .bad select, .bad textarea, .class-picker.bad .box { border-color: var(--coral); }
+	.check.bad { color: var(--coral); }
+	.check { flex-direction: row; align-items: center; gap: 0.6rem; font-weight: 600; }
+	.check input { width: 22px; height: 22px; accent-color: var(--purple); }
+	.class-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; }
+	.pick { margin: 0; }
+	.pick input { position: absolute; opacity: 0; }
+	.box { display: flex; flex-direction: column; gap: 0.15rem; padding: 0.9rem 1rem; border: 2px solid #d9d6f0; border-radius: 16px; background: var(--white); cursor: pointer; transition: 0.15s; height: 100%; }
+	.box span { font-weight: 400; color: var(--muted); font-size: 0.9rem; }
+	.box em { font-style: normal; color: var(--coral); font-family: var(--font-display); font-size: 1.2rem; }
+	.pick:hover .box { transform: translateY(-2px); border-color: var(--purple); }
+	.pick input:checked + .box { border-color: var(--teal); background: #e6faf8; box-shadow: 0 0 0 4px rgba(0, 184, 169, 0.2); }
+	.pick input:focus-visible + .box { outline: 3px solid var(--sky); }
+	.err { color: var(--coral); font-weight: 700; }
+	.summary { position: sticky; top: 96px; padding: 1.5rem; }
+	.summary:hover { transform: none; }
+	.none { color: var(--muted); }
+	.s-title { font-family: var(--font-display); font-size: 1.4rem; color: var(--navy); }
+	.total { display: flex; justify-content: space-between; font-family: var(--font-display); font-size: 1.5rem; color: var(--navy); border-top: 2px dashed #e0ddf3; padding-top: 0.8rem; margin-top: 0.8rem; }
+	.small { font-size: 0.85rem; color: var(--muted); }
+	.help { border-top: 1px solid #eee; margin-top: 1rem; padding-top: 1rem; font-size: 0.95rem; }
+	.done { padding: 2.5rem; text-align: center; margin-top: 1rem; }
+	.done:hover { transform: none; }
+	.big { font-size: 3rem; display: block; }
+	@media (max-width: 820px) { .grid { grid-template-columns: 1fr; } .summary { position: static; } .row { grid-template-columns: 1fr; } }
+</style>

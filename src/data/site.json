@@ -1,0 +1,31 @@
+{
+  "name": "Fenland Paws",
+  "tagline": "Happy dogs. Confident owners. Wisbech's friendliest dog training.",
+  "heroTitle": "Bring out the best in your dog",
+  "heroText": "Fun, reward-based training classes in Wisbech for puppies, adolescents and grown-up dogs. Small groups, big results, lots of treats.",
+  "phone": "01945 000 000",
+  "email": "hello@fenlandpaws.co.uk",
+  "address": "The Old Barn, Leverington Road, Wisbech PE13 1PL",
+  "trainer": "Sam Ogilvie",
+  "trainerBio": "Sam has been training dogs across the Fens for over twelve years and is a fully accredited, force-free trainer. When not in the training barn, Sam is usually being out-run by two spaniels along the Nene.",
+  "stats": [
+    { "value": "1,200+", "label": "dogs trained" },
+    { "value": "12", "label": "years experience" },
+    { "value": "6", "label": "max dogs per class" },
+    { "value": "4.9★", "label": "average review" }
+  ],
+  "testimonials": [
+    { "quote": "Biscuit went from pulling my arm off to walking beautifully in six weeks. Sam is patient, funny and genuinely brilliant with nervous dogs.", "name": "Hannah, Wisbech", "dog": "Biscuit the Labrador", "image": 21 },
+    { "quote": "The puppy classes were the best money we've spent on Rolo. He's confident, sociable and actually comes back when called!", "name": "Dave & Priya, March", "dog": "Rolo the Cockapoo", "image": 33 },
+    { "quote": "We'd tried two other trainers before Fenland Paws. The difference is night and day — everything is explained so clearly.", "name": "Margaret, Leverington", "dog": "Duke the German Shepherd", "image": 8 },
+    { "quote": "Agility Fun is the highlight of our week. Pepper is exhausted and I get a coffee and a chat. Perfect.", "name": "Tom, Walsoken", "dog": "Pepper the Collie", "image": 45 }
+  ],
+  "faqs": [
+    { "q": "What age can my puppy start?", "a": "Puppies can join Puppy Foundations from 8 weeks, as long as they've had their first vaccination. The earlier the better — the socialisation window closes fast!" },
+    { "q": "Do you use punishment or 'dominance' methods?", "a": "Never. Everything we do is reward-based and science-led. Dogs learn fastest when training is fun, and we're proud members of the force-free community." },
+    { "q": "My dog is reactive to other dogs. Can they come to a class?", "a": "Group classes can be too much for a reactive dog. Book a 1-2-1 Behaviour session first and we'll build a plan — many of our 1-2-1 dogs go on to join a class later." },
+    { "q": "What should I bring?", "a": "Lots of tiny, tasty treats (cheese and chicken are winners), a flat collar or harness, a normal lead (no extendables), and your dog's favourite toy. Water bowls are provided." },
+    { "q": "Where are the classes held?", "a": "In our covered, fully-fenced barn on Leverington Road on the edge of Wisbech, with plenty of free parking. Agility runs on the paddock next door when it's dry." },
+    { "q": "What if I miss a week?", "a": "Life happens! Each course includes one free catch-up session and you'll get the week's notes and homework by email so you don't fall behind." }
+  ]
+}

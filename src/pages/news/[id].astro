@@ -1,19 +1,35 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import CTA from '../../components/CTA.astro';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('posts');
 	return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
 }
 
+const base = import.meta.env.BASE_URL;
 const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<Layout title={`${post.data.title} · Astro Test Site`}>
-	<h1>{post.data.title}</h1>
-	<p><small>{post.data.date.toLocaleDateString('en-GB', { dateStyle: 'long' })}</small></p>
-	{post.data.image && <img src={post.data.image} alt="" style="max-width:100%" />}
-	<Content />
+<Layout title={`${post.data.title} · Fenland Paws`} description={post.data.summary}>
+	<article class="section">
+		<div class="wrap article">
+			<a class="back" href={`${base}news/`}>← All news</a>
+			<time>{post.data.date.toLocaleDateString('en-GB', { dateStyle: 'long' })}</time>
+			<h1>{post.data.title}</h1>
+			{post.data.image && <img class="hero" src={post.data.image} alt="" />}
+			<div class="prose"><Content /></div>
+		</div>
+	</article>
+	<CTA />
 </Layout>
+
+<style>
+	.article { max-width: 760px; }
+	.back { display: inline-block; text-decoration: none; font-weight: 700; margin-bottom: 1rem; }
+	time { display: block; font-weight: 800; color: var(--coral); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.9rem; }
+	.hero { border-radius: var(--radius); aspect-ratio: 16/9; width: 100%; object-fit: cover; margin: 1.5rem 0; box-shadow: var(--shadow); }
+	.prose { font-size: 1.1rem; }
+</style>

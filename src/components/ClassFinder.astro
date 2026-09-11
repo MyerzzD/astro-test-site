@@ -1,0 +1,84 @@
+---
+import { getCollection } from 'astro:content';
+import ClassCard from './ClassCard.astro';
+
+interface Props { limit?: number; showFilters?: boolean }
+const { limit, showFilters = true } = Astro.props;
+const order = { puppy: 0, adolescent: 1, adult: 2, behaviour: 3 };
+const all = (await getCollection('classes')).sort(
+	(a, b) => Number(b.data.featured) - Number(a.data.featured) || order[a.data.level] - order[b.data.level],
+);
+const entries = limit ? all.slice(0, limit) : all;
+const levels = [
+	{ key: 'all', label: 'All classes' },
+	{ key: 'puppy', label: '🐣 Puppy' },
+	{ key: 'adolescent', label: '🙄 Teenager' },
+	{ key: 'adult', label: '🐕 Adult' },
+	{ key: 'behaviour', label: '🧠 1-2-1' },
+];
+---
+
+<div class="finder">
+	{showFilters && (
+		<div class="filters" role="tablist" aria-label="Filter classes by age">
+			{levels.map((l) => (
+				<button class:list={['filter', { on: l.key === 'all' }]} data-level={l.key} role="tab" aria-selected={l.key === 'all'}>{l.label}</button>
+			))}
+			<label class="day">
+				<span>Day</span>
+				<select id="day-filter">
+					<option value="all">Any day</option>
+					{[...new Set(all.map((e) => e.data.day))].map((d) => <option value={d}>{d}</option>)}
+				</select>
+			</label>
+		</div>
+	)}
+	<div class="grid" id="class-grid">
+		{entries.map((e) => <div class="cell reveal"><ClassCard entry={e} /></div>)}
+	</div>
+	<p class="empty" id="class-empty" hidden>No classes match — try a different day, or <a href="#contact">get in touch</a> and we'll find you a space.</p>
+</div>
+
+<script>
+	const grid = document.getElementById('class-grid');
+	const empty = document.getElementById('class-empty');
+	const filters = [...document.querySelectorAll<HTMLButtonElement>('.filter')];
+	const daySel = document.getElementById('day-filter') as HTMLSelectElement | null;
+	let level = 'all';
+
+	const apply = () => {
+		const day = daySel?.value ?? 'all';
+		let shown = 0;
+		grid?.querySelectorAll<HTMLElement>('.cell').forEach((cell) => {
+			const card = cell.querySelector<HTMLElement>('.class-card')!;
+			const ok = (level === 'all' || card.dataset.level === level) && (day === 'all' || card.dataset.day === day);
+			cell.hidden = !ok;
+			if (ok) { shown++; cell.classList.add('in'); }
+		});
+		if (empty) empty.hidden = shown > 0;
+	};
+	filters.forEach((b) =>
+		b.addEventListener('click', () => {
+			level = b.dataset.level!;
+			filters.forEach((f) => { f.classList.toggle('on', f === b); f.setAttribute('aria-selected', String(f === b)); });
+			apply();
+		}),
+	);
+	daySel?.addEventListener('change', apply);
+</script>
+
+<style>
+	.filters { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 2rem; }
+	.filter {
+		font-family: var(--font-display); font-weight: 600; font-size: 0.95rem;
+		padding: 0.55rem 1.1rem; border-radius: 999px; border: 2px solid var(--navy);
+		background: var(--white); color: var(--navy); cursor: pointer; transition: 0.15s;
+	}
+	.filter:hover { transform: translateY(-2px); }
+	.filter.on { background: var(--navy); color: var(--white); }
+	.day { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--navy); }
+	.day select { font: inherit; padding: 0.5rem 0.8rem; border-radius: 12px; border: 2px solid var(--navy); background: var(--white); }
+	.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.6rem; }
+	.empty { text-align: center; color: var(--muted); padding: 2rem; }
+	@media (max-width: 600px) { .day { margin-left: 0; width: 100%; } }
+</style>

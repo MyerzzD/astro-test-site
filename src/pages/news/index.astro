@@ -1,22 +1,42 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import CTA from '../../components/CTA.astro';
 
 const base = import.meta.env.BASE_URL;
-const posts = (await getCollection('posts')).sort(
-	(a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const posts = (await getCollection('posts')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<Layout title="News · Astro Test Site">
-	<h1>News</h1>
-	<ul>
-		{posts.map((post) => (
-			<li>
-				<a href={`${base}news/${post.id}`}>{post.data.title}</a>
-				<small> — {post.data.date.toLocaleDateString('en-GB', { dateStyle: 'medium' })}</small>
-				{post.data.summary && <p>{post.data.summary}</p>}
-			</li>
-		))}
-	</ul>
+<Layout title="News · Fenland Paws">
+	<section class="section">
+		<div class="wrap">
+			<div class="section-head">
+				<span class="eyebrow">News</span>
+				<h1>What's happening at the barn</h1>
+			</div>
+			<div class="grid">
+				{posts.map((post) => (
+					<article class="card post reveal">
+						{post.data.image && <a href={`${base}news/${post.id}/`}><img src={post.data.image} alt="" loading="lazy" /></a>}
+						<div class="body">
+							<time>{post.data.date.toLocaleDateString('en-GB', { dateStyle: 'long' })}</time>
+							<h3><a href={`${base}news/${post.id}/`}>{post.data.title}</a></h3>
+							{post.data.summary && <p>{post.data.summary}</p>}
+							<a class="more" href={`${base}news/${post.id}/`}>Read more →</a>
+						</div>
+					</article>
+				))}
+			</div>
+		</div>
+	</section>
+	<CTA />
 </Layout>
+
+<style>
+	.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.6rem; }
+	.post img { aspect-ratio: 16/9; width: 100%; object-fit: cover; }
+	.body { padding: 1.3rem; }
+	time { font-size: 0.85rem; font-weight: 800; color: var(--coral); text-transform: uppercase; letter-spacing: 0.05em; }
+	h3 a { color: inherit; text-decoration: none; }
+	.more { font-weight: 800; text-decoration: none; }
+</style>

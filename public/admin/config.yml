@@ -2,10 +2,6 @@ backend:
   name: github
   repo: MyerzzD/astro-test-site
   branch: main
-  # For "Sign in with GitHub" (no token needed by the client), deploy the
-  # sveltia-cms-auth Cloudflare Worker and set its URL here:
-  # base_url: https://sveltia-cms-auth.<your-subdomain>.workers.dev
-  # Until then, use "Sign in with a personal access token" on the login screen.
 
 site_url: https://myerzzd.github.io/astro-test-site
 display_url: https://myerzzd.github.io/astro-test-site
@@ -14,16 +10,84 @@ media_folder: public/uploads
 public_folder: /astro-test-site/uploads
 
 collections:
+  - name: settings
+    label: Site settings
+    description: Business details, hero text, reviews and FAQs.
+    files:
+      - name: site
+        label: Site settings
+        file: src/data/site.json
+        fields:
+          - { name: name, label: Business name, widget: string }
+          - { name: tagline, label: Tagline, widget: string }
+          - { name: heroTitle, label: Homepage headline, widget: string }
+          - { name: heroText, label: Homepage intro, widget: text }
+          - { name: phone, label: Phone, widget: string }
+          - { name: email, label: Email, widget: string }
+          - { name: address, label: Address, widget: string }
+          - { name: trainer, label: Trainer name, widget: string }
+          - { name: trainerBio, label: Trainer bio, widget: text }
+          - name: stats
+            label: Homepage stats
+            widget: list
+            fields:
+              - { name: value, label: Number, widget: string }
+              - { name: label, label: Label, widget: string }
+          - name: testimonials
+            label: Reviews
+            widget: list
+            summary: "{{fields.name}} — {{fields.dog}}"
+            fields:
+              - { name: quote, label: Quote, widget: text }
+              - { name: name, label: Owner, widget: string, hint: "e.g. Hannah, Wisbech" }
+              - { name: dog, label: Dog, widget: string, hint: "e.g. Biscuit the Labrador" }
+              - { name: image, label: Photo, widget: image, required: false, hint: "Leave blank to use a stock photo, or upload one." }
+          - name: faqs
+            label: FAQs
+            widget: list
+            summary: "{{fields.q}}"
+            fields:
+              - { name: q, label: Question, widget: string }
+              - { name: a, label: Answer, widget: text }
+
+  - name: classes
+    label: Classes
+    label_singular: Class
+    description: Classes and courses shown on the Classes page, homepage and booking form.
+    folder: src/content/classes
+    create: true
+    slug: "{{slug}}"
+    format: frontmatter
+    fields:
+      - { name: title, label: Class name, widget: string }
+      - name: level
+        label: Who it's for
+        widget: select
+        options:
+          - { label: Puppy, value: puppy }
+          - { label: Teenager, value: adolescent }
+          - { label: Adult, value: adult }
+          - { label: 1-2-1 / behaviour, value: behaviour }
+      - { name: day, label: Day, widget: string, hint: "e.g. Saturday, or Flexible" }
+      - { name: time, label: Time, widget: string, hint: "e.g. 10:00 – 10:45" }
+      - { name: price, label: Price (£), widget: number, value_type: int }
+      - { name: weeks, label: Number of weeks, widget: number, value_type: int, hint: "Use 1 for a single session." }
+      - { name: spots, label: Spaces left, widget: number, value_type: int, hint: "3 or fewer shows a 'spaces left' badge." }
+      - { name: image, label: Photo, widget: image, required: false, hint: "Leave blank to use a stock photo." }
+      - { name: summary, label: Short summary, widget: text, hint: "One or two sentences shown on the class card." }
+      - { name: featured, label: Show first, widget: boolean, default: false }
+      - { name: body, label: Full description, widget: markdown }
+
   - name: pages
     label: Pages
-    description: Fixed pages on the site. Edit text here; the URL and layout are fixed.
+    description: Text on the Home and About pages. The layout is fixed.
     folder: src/content/pages
     create: false
     delete: false
     format: frontmatter
     fields:
       - { name: title, label: Browser tab title, widget: string }
-      - { name: heading, label: Page heading, widget: string }
+      - { name: heading, label: Section heading, widget: string }
       - { name: body, label: Content, widget: markdown }
 
   - name: posts

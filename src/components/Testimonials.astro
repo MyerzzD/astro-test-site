@@ -1,0 +1,82 @@
+---
+import site from '../data/site.json';
+import { dogImg } from '../lib/img';
+---
+
+<section class="section testimonials">
+	<div class="wrap">
+		<div class="section-head reveal">
+			<span class="eyebrow yellow">Happy tails</span>
+			<h2>What Wisbech dog owners say</h2>
+		</div>
+		<div class="carousel reveal" tabindex="0" aria-roledescription="carousel" aria-label="Testimonials">
+			<div class="track">
+				{site.testimonials.map((t, i) => (
+					<figure class:list={['slide', { on: i === 0 }]} aria-hidden={i !== 0}>
+						<img src={dogImg(t.image, 400, 400)} alt={t.dog} width="400" height="400" loading="lazy" />
+						<blockquote>“{t.quote}”</blockquote>
+						<figcaption><strong>{t.name}</strong><span>{t.dog}</span></figcaption>
+					</figure>
+				))}
+			</div>
+			<div class="controls">
+				<button class="prev" aria-label="Previous">←</button>
+				<div class="dots">{site.testimonials.map((_, i) => <button class:list={['dot', { on: i === 0 }]} aria-label={`Go to review ${i + 1}`}></button>)}</div>
+				<button class="next" aria-label="Next">→</button>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	const car = document.querySelector('.carousel');
+	if (car) {
+		const slides = [...car.querySelectorAll<HTMLElement>('.slide')];
+		const dots = [...car.querySelectorAll<HTMLElement>('.dot')];
+		let i = 0, timer: number;
+		const go = (n: number) => {
+			i = (n + slides.length) % slides.length;
+			slides.forEach((s, k) => { s.classList.toggle('on', k === i); s.setAttribute('aria-hidden', String(k !== i)); });
+			dots.forEach((d, k) => d.classList.toggle('on', k === i));
+		};
+		const auto = () => { clearInterval(timer); timer = window.setInterval(() => go(i + 1), 6000); };
+		car.querySelector('.prev')?.addEventListener('click', () => { go(i - 1); auto(); });
+		car.querySelector('.next')?.addEventListener('click', () => { go(i + 1); auto(); });
+		dots.forEach((d, k) => d.addEventListener('click', () => { go(k); auto(); }));
+		car.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') go(i - 1); if (e.key === 'ArrowRight') go(i + 1); });
+		let x0 = 0;
+		car.addEventListener('touchstart', (e) => (x0 = e.touches[0].clientX), { passive: true });
+		car.addEventListener('touchend', (e) => { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(dx < 0 ? i + 1 : i - 1); });
+		auto();
+	}
+</script>
+
+<style>
+	.testimonials { background: var(--white); }
+	.carousel { position: relative; outline: none; }
+	.carousel:focus-visible { box-shadow: 0 0 0 4px var(--sky); border-radius: var(--radius); }
+	.track { position: relative; min-height: 300px; }
+	.slide {
+		position: absolute; inset: 0; margin: 0; opacity: 0; transition: opacity 0.25s;
+		display: grid; grid-template-columns: 160px 1fr; gap: 2rem; align-items: center;
+		background: var(--cream); border-radius: var(--radius); padding: 2rem; pointer-events: none;
+	}
+	.slide.on { opacity: 1; pointer-events: auto; position: relative; animation: slidein 0.45s ease; }
+	@keyframes slidein { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: none; } }
+	.slide img { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 6px solid var(--yellow); }
+	blockquote { margin: 0; font-size: clamp(1.1rem, 2vw, 1.4rem); font-weight: 600; color: var(--navy); grid-row: span 2; }
+	figcaption { grid-column: 1; display: flex; flex-direction: column; font-size: 0.95rem; }
+	figcaption strong { color: var(--navy); }
+	figcaption span { color: var(--muted); }
+	.controls { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.2rem; }
+	.prev, .next { font: inherit; font-weight: 800; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--navy); background: var(--white); color: var(--navy); cursor: pointer; }
+	.prev:hover, .next:hover { background: var(--navy); color: var(--white); }
+	.dots { display: flex; gap: 0.5rem; }
+	.dot { width: 12px; height: 12px; border-radius: 50%; border: 0; background: #d9d6f0; cursor: pointer; padding: 0; transition: 0.2s; }
+	.dot.on { background: var(--coral); transform: scale(1.3); }
+	@media (max-width: 640px) {
+		.slide { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+		blockquote { grid-row: auto; }
+		figcaption { grid-column: auto; }
+	}
+</style>

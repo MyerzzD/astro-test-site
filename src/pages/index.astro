@@ -1,12 +1,61 @@
 ---
 import { getEntry, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Stats from '../components/Stats.astro';
+import ClassFinder from '../components/ClassFinder.astro';
+import Quiz from '../components/Quiz.astro';
+import Testimonials from '../components/Testimonials.astro';
+import FAQ from '../components/FAQ.astro';
+import CTA from '../components/CTA.astro';
 
+const base = import.meta.env.BASE_URL;
 const page = await getEntry('pages', 'home');
 const { Content } = await render(page);
 ---
 
 <Layout title={page.data.title}>
-	<h1>{page.data.heading}</h1>
-	<Content />
+	<Hero />
+	<Stats />
+
+	<section class="section">
+		<div class="wrap welcome">
+			<div class="reveal">
+				<span class="eyebrow teal">Welcome</span>
+				<h2>{page.data.heading}</h2>
+				<div class="prose"><Content /></div>
+				<a class="btn ghost" href={`${base}about/`}>More about us</a>
+			</div>
+			<div class="collage reveal">
+				<img src="https://placedog.net/500/620?id=14" alt="Dog training in the barn" width="500" height="620" loading="lazy" />
+				<img src="https://placedog.net/400/400?id=27" alt="A puppy in class" width="400" height="400" loading="lazy" />
+			</div>
+		</div>
+	</section>
+
+	<section class="section classes-home">
+		<div class="wrap">
+			<div class="section-head reveal">
+				<span class="eyebrow coral">Classes</span>
+				<h2>Find your class</h2>
+				<p>Filter by your dog's age or the day that suits you. All classes run at our barn on Leverington Road, Wisbech.</p>
+			</div>
+			<ClassFinder />
+		</div>
+	</section>
+
+	<Quiz />
+	<Testimonials />
+	<FAQ />
+	<CTA />
 </Layout>
+
+<style>
+	.welcome { display: grid; grid-template-columns: 1.1fr 1fr; gap: 3rem; align-items: center; }
+	.collage { position: relative; aspect-ratio: 5/6; }
+	.collage img { position: absolute; border-radius: 28px; object-fit: cover; box-shadow: var(--shadow); border: 6px solid var(--white); }
+	.collage img:first-child { inset: 0 15% 0 0; width: 85%; height: 100%; transform: rotate(-3deg); }
+	.collage img:last-child { width: 50%; aspect-ratio: 1; right: 0; bottom: -5%; transform: rotate(4deg); }
+	.classes-home { background: linear-gradient(180deg, transparent, rgba(116, 185, 255, 0.18)); }
+	@media (max-width: 820px) { .welcome { grid-template-columns: 1fr; } .collage { width: 100%; max-width: 420px; margin-inline: auto; } }
+</style>
