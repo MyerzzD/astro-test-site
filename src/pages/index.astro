@@ -1,17 +1,9 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Astro Test Site">
+	<h1>Hello from Astro 👋</h1>
+	<p>This is a test site built with Astro and deployed to GitHub Pages.</p>
+	<p>Edit <code>src/pages/index.astro</code> and push to redeploy.</p>
+</Layout>
