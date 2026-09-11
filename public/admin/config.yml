@@ -1,0 +1,43 @@
+backend:
+  name: github
+  repo: MyerzzD/astro-test-site
+  branch: main
+  # For "Sign in with GitHub" (no token needed by the client), deploy the
+  # sveltia-cms-auth Cloudflare Worker and set its URL here:
+  # base_url: https://sveltia-cms-auth.<your-subdomain>.workers.dev
+  # Until then, use "Sign in with a personal access token" on the login screen.
+
+site_url: https://myerzzd.github.io/astro-test-site
+display_url: https://myerzzd.github.io/astro-test-site
+
+media_folder: public/uploads
+public_folder: /astro-test-site/uploads
+
+collections:
+  - name: pages
+    label: Pages
+    description: Fixed pages on the site. Edit text here; the URL and layout are fixed.
+    folder: src/content/pages
+    create: false
+    delete: false
+    format: frontmatter
+    fields:
+      - { name: title, label: Browser tab title, widget: string }
+      - { name: heading, label: Page heading, widget: string }
+      - { name: body, label: Content, widget: markdown }
+
+  - name: posts
+    label: News
+    label_singular: Post
+    description: News posts. New posts appear on the News page after publishing.
+    folder: src/content/posts
+    create: true
+    slug: "{{slug}}"
+    format: frontmatter
+    sortable_fields: [date, title]
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: date, label: Date, widget: datetime, time_format: false, format: YYYY-MM-DD }
+      - { name: summary, label: Summary, widget: string, required: false, hint: Shown on the News listing page. }
+      - { name: image, label: Image, widget: image, required: false }
+      - { name: body, label: Content, widget: markdown }

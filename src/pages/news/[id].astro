@@ -1,0 +1,19 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('posts');
+	return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Layout title={`${post.data.title} · Astro Test Site`}>
+	<h1>{post.data.title}</h1>
+	<p><small>{post.data.date.toLocaleDateString('en-GB', { dateStyle: 'long' })}</small></p>
+	{post.data.image && <img src={post.data.image} alt="" style="max-width:100%" />}
+	<Content />
+</Layout>
